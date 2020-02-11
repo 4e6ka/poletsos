@@ -1,31 +1,33 @@
-import requests  
-import datetime
+# -*- coding: utf-8 -*-
+import config
+import telebot
 
-class BotHandler:
+bot = telebot.TeleBot(config.token)
 
-    def __init__(self, token):
-        self.token = token
-        self.api_url = "https://api.telegram.org/bot{}/".format(842069627:AAEsxI8uXSOwdM7Hzd1uFrOX-rEGDBY-li0)
+@bot.message_handler(commands=['sos'])
+def send_welcome(message):
+       bot.reply_to(message, '🙏 Список экстренных служб: \nПротивопожарная служба - 84965141863 \nАварийная сантехническая служба -  89099908170, 89295256583 \nПолиция - 84965115025 \nУК Полёт (круглосуточно!) - 89031473597 \nЛифтовая аварийная служба (круглосуточно) - 84965114636 \nПожарная безопасность и домофоны - 89671520144 \nТелефон доверия - 84985054170 \nНичего не подходит? - звоните 112 😥')
 
-    def get_updates(self, offset=None, timeout=30):
-        method = 'getUpdates'
-        params = {'timeout': timeout, 'offset': offset}
-        resp = requests.get(self.api_url + method, params)
-        result_json = resp.json()['result']
-        return result_json
+@bot.message_handler(commands=['raspisanie'])
+def send_welcome2(message):
+       bot.reply_to(message, '🚌 Расписание 3П и 3Пб от Полёта 🚌'),
+       bot.send_photo(message.chat.id, photo=open('tests/raspisanie.jpg', 'rb'))
 
-    def send_message(self, chat_id, text):
-        params = {'chat_id': chat_id, 'text': text}
-        method = 'sendMessage'
-        resp = requests.post(self.api_url + method, params)
-        return resp
 
-    def get_last_update(self):
-        get_result = self.get_updates()
+@bot.message_handler(content_types=['text'])
+def text_handler(message):
+    text = message.text.lower()
+    chat_id = message.chat.id
+    if text == "sos":
+        bot.send_message(chat_id, '🙏 Список экстренных служб: \nПротивопожарная служба - 84965141863 \nАварийная сантехническая служба -  89099908170, 89295256583 \nПолиция - 84965115025 \nУК Полёт (круглосуточно!) - 89031473597 \nЛифтовая аварийная служба (круглосуточно) - 84965114636 \nПожарная безопасность и домофоны - 89671520144 \nТелефон доверия - 84985054170 \nНичего не подходит? - звоните 112 😥')
+    elif text == "расписание":
+        bot.send_message(chat_id, '🚌 Расписание 3П и 3Пб от Полёта 🚌'),
+        bot.send_photo(chat_id=chat_id, photo=open('tests/raspisanie.jpg', 'rb'))
+    else:
+        None
+		
+		
+	
 
-        if len(get_result) > 0:
-            last_update = get_result[-1]
-        else:
-            last_update = get_result[len(get_result)]
-
-        return last_update
+if __name__ == '__main__':
+     bot.infinity_polling()
